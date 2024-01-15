@@ -6606,6 +6606,7 @@ __metadata:
     "@redwoodjs/api": "npm:6.6.2"
     "@redwoodjs/auth-auth0-api": "npm:6.6.2"
     "@redwoodjs/graphql-server": "npm:6.6.2"
+    auth0: "npm:^4.2.0"
   languageName: unknown
   linkType: soft
 
@@ -6973,6 +6974,16 @@ __metadata:
   version: 1.0.0
   resolution: "atomic-sleep@npm:1.0.0"
   checksum: e329a6665512736a9bbb073e1761b4ec102f7926cce35037753146a9db9c8104f5044c1662e4a863576ce544fb8be27cd2be6bc8c1a40147d03f31eb1cfb6e8a
+  languageName: node
+  linkType: hard
+
+"auth0@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "auth0@npm:4.2.0"
+  dependencies:
+    jose: "npm:^4.13.2"
+    uuid: "npm:^9.0.0"
+  checksum: 51bfa23b51b0e8fde5ca7a1eb80ecccc44f2e04288ff9c587abbb7ef3a66a206714d973e60701f9dc3d9889a0f45e3551e1f16863cadc6f091dc8e1b7950b23c
   languageName: node
   linkType: hard
 
@@ -13539,7 +13550,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jose@npm:^4.11.4, jose@npm:^4.14.6":
+"jose@npm:^4.11.4, jose@npm:^4.13.2, jose@npm:^4.14.6":
   version: 4.15.4
   resolution: "jose@npm:4.15.4"
   checksum: ce8b29f84d6172a566b12b599dafa82f3bef0f16278bb76d562490ac1516fcc14017b05a39d20ffad25ed504f4996d4af4c9d3e0273d95b2d5559bf6d1112bc0
@@ -19776,7 +19787,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uuid@npm:9.0.1":
+"uuid@npm:9.0.1, uuid@npm:^9.0.0":
   version: 9.0.1
   resolution: "uuid@npm:9.0.1"
   bin:
@@ -20026,6 +20037,7 @@ __metadata:
     "@redwoodjs/web": "npm:6.6.2"
     "@types/react": "npm:18.2.37"
     "@types/react-dom": "npm:18.2.15"
+    humanize-string: "npm:2.1.0"
     prop-types: "npm:15.8.1"
     react: "npm:18.2.0"
     react-dom: "npm:18.2.0"

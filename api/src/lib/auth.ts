@@ -1,11 +1,17 @@
-import type { Decoded } from '@redwoodjs/api'
+import type { AuthContextPayload, Decoded } from '@redwoodjs/api'
 import { AuthenticationError, ForbiddenError } from '@redwoodjs/graphql-server'
 
 /**
  * Represents the user attributes returned by the decoding the
  * Authentication provider's JWT together with an optional list of roles.
  */
-type RedwoodUser = Record<string, unknown> & { roles?: string[] }
+type RedwoodUser = Record<string, unknown> & {
+  roles: string[]
+  permissions: string[]
+  userId: string
+  sub: string
+  token: string
+}
 
 /**
  * getCurrentUser returns the user information together with
@@ -30,19 +36,28 @@ type RedwoodUser = Record<string, unknown> & { roles?: string[] }
  * @returns RedwoodUser
  */
 export const getCurrentUser = async (
-  decoded: Decoded
+  decoded: Decoded,
+  raw: AuthContextPayload[1]
 ): Promise<RedwoodUser | null> => {
   if (!decoded) {
     return null
   }
 
-  const roles = decoded[process.env.AUTH0_AUDIENCE + '/roles']
+  const { token } = raw
 
-  if (roles) {
-    return { ...decoded, roles }
+  const roles = decoded[process.env.AUTH0_AUDIENCE + '/roles'] as string[]
+  const userId = decoded[process.env.AUTH0_AUDIENCE + '/app_metadata']['userId']
+  const permissions = decoded.permissions as string[]
+  const sub = decoded.sub as string
+
+  return {
+    ...decoded,
+    sub,
+    userId,
+    roles: roles || [],
+    permissions: permissions || [],
+    token,
   }
-
-  return { ...decoded }
 }
 
 /**

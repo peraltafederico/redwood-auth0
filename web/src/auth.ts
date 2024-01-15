@@ -8,6 +8,8 @@ const auth0 = new Auth0Client({
   authorizationParams: {
     redirect_uri: process.env.AUTH0_REDIRECT_URI,
     audience: process.env.AUTH0_AUDIENCE,
+    scope:
+      'openid email profile read:current_user update:current_user_identities',
   },
 
   // Storing tokens in the browser's local storage provides persistence across page refreshes and browser tabs.
