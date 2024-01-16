@@ -21,7 +21,6 @@ const HomeActions = () => {
       domain: process.env.AUTH0_DOMAIN || '',
       clientId: process.env.AUTH0_CLIENT_ID || '',
     })
-    console.log('process.env.AUTH0_AUDIENCE', process.env.AUTH0_AUDIENCE)
     await auth0.loginWithPopup({
       authorizationParams: {
         max_age: 0,
