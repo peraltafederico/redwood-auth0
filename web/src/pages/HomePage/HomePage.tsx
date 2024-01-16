@@ -1,13 +1,32 @@
-import { Metadata } from '@redwoodjs/web'
+import { useEffect, useState } from 'react'
 
-import Home from '../../components/Home/Home/Home'
+import { useAuth } from '../../auth'
+import HomeCell from '../../components/Home/HomeCell'
 
 const HomePage = () => {
+  const { isAuthenticated, signUp, getToken, hasRole } = useAuth()
+  const [token, setToken] = useState('')
+
+  useEffect(() => {
+    const run = async () => {
+      setToken(await getToken())
+    }
+
+    run()
+  }, [getToken])
+
+  const isAdmin = hasRole('admin')
+  console.log('token', token)
+
   return (
-    <>
-      <Metadata title="Home" description="Home page" />
-      <Home />
-    </>
+    <div>
+      <pre>{JSON.stringify({ isAuthenticated, isAdmin }, null, 2)}</pre>
+      {isAuthenticated ? (
+        <HomeCell />
+      ) : (
+        <button onClick={() => signUp()}>log in</button>
+      )}
+    </div>
   )
 }
 

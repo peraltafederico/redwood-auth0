@@ -9,6 +9,12 @@ import { db } from 'src/lib/db'
 
 import { verify } from '../../lib/jwt'
 
+const managementClient = new ManagementClient({
+  domain: process.env.AUTH0_DOMAIN,
+  clientId: process.env.AUTH0_MANAGEMENT_CLIENT_ID,
+  clientSecret: process.env.AUTH0_MANAGEMENT_CLIENT_SECRET,
+})
+
 export const users: QueryResolvers['users'] = () => {
   return db.user.findMany()
 }
@@ -45,12 +51,6 @@ export const linkUser: MutationResolvers['linkUser'] = async ({ input }) => {
   ]?.userId as string
 
   await db.$transaction(async (_db) => {
-    const managementClient = new ManagementClient({
-      domain: process.env.AUTH0_DOMAIN,
-      clientId: process.env.AUTH0_MANAGEMENT_CLIENT_ID,
-      clientSecret: process.env.AUTH0_MANAGEMENT_CLIENT_SECRET,
-    })
-
     console.log('linkWithUserId', decodedLinkwith, linkWithUserId)
 
     await _db.post.updateMany({
@@ -89,5 +89,10 @@ export const linkUser: MutationResolvers['linkUser'] = async ({ input }) => {
 export const User: UserRelationResolvers = {
   posts: (_obj, { root }) => {
     return db.user.findUnique({ where: { id: root?.id } }).posts()
+  },
+  auth0User: async (_obj, { root }) => {
+    const { data } = await managementClient.users.get({ id: root.auth0Id })
+    console.log('data', JSON.stringify(data))
+    return data
   },
 }

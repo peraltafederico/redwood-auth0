@@ -1,36 +1,18 @@
-import { useEffect, useState } from 'react'
-
-import { useAuth } from '../../../auth'
+import { UserQuery } from '../../../../types/graphql'
 import HomeActions from '../HomeActions/HomeActions'
 import HomePages from '../HomePages/HomePages'
 
-const Home = () => {
-  const { isAuthenticated, signUp, getToken, hasRole } = useAuth()
-  const [token, setToken] = useState('')
+interface Props {
+  user: NonNullable<UserQuery['user']>
+}
 
-  useEffect(() => {
-    const run = async () => {
-      setToken(await getToken())
-    }
-
-    run()
-  }, [getToken])
-
-  const isAdmin = hasRole('admin')
-
+const Home = ({ user }: Props) => {
   return (
-    <div>
-      <p>{JSON.stringify({ isAuthenticated, isAdmin }, null, 2)}</p>
-      <p>{token}</p>
-      {isAuthenticated ? (
-        <>
-          <HomeActions />
-          <HomePages />
-        </>
-      ) : (
-        <button onClick={() => signUp()}>log in</button>
-      )}
-    </div>
+    <>
+      <pre>{JSON.stringify({ ...user }, null, 2)}</pre>
+      <HomeActions />
+      <HomePages />
+    </>
   )
 }
 
