@@ -37,10 +37,8 @@ export const handler = async (event: APIGatewayEvent, _context: Context) => {
       auth0Id: string
     }
 
-    console.log(
-      'process.env.AUTH0_WEBHOOK_TOKEN',
-      process.env.AUTH0_WEBHOOK_TOKEN
-    )
+    console.log('process.env.AUTH0_WEBHOOK_TOKEN')
+    console.log(process.env.AUTH0_WEBHOOK_TOKEN)
 
     logger.info('test')
 
