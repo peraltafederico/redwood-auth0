@@ -33,11 +33,15 @@ export const handler = async (event: APIGatewayEvent, _context: Context) => {
     auth0Id: string
   }
 
+  logger.info('test')
+
   if (body.token !== process.env.AUTH0_WEBHOOK_TOKEN) {
     return {
       statusCode: 401,
     }
   }
+
+  logger.info('management', process.env.AUTH0_DOMAIN)
 
   const management = new ManagementClient({
     domain: process.env.AUTH0_DOMAIN || '',
@@ -45,6 +49,8 @@ export const handler = async (event: APIGatewayEvent, _context: Context) => {
     clientSecret: process.env.AUTH0_MANAGEMENT_CLIENT_SECRET || '',
     audience: process.env.AUTH0_MANAGEMENT_AUDIENCE || '',
   })
+
+  logger.info('auth0User', process.env.AUTH0_DOMAIN)
 
   let auth0User: GetUsers200ResponseOneOfInner
 
