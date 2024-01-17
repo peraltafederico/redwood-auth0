@@ -22,7 +22,7 @@ import { db } from '../lib/db'
  * function, and execution environment.
  */
 export const handler = async (event: APIGatewayEvent, _context: Context) => {
-  console.log('Processing ', event.httpMethod)
+  logger.info(`Processing ${event.httpMethod} ${event.body}`)
 
   try {
     if (event.httpMethod !== 'POST') {
@@ -31,39 +31,22 @@ export const handler = async (event: APIGatewayEvent, _context: Context) => {
       }
     }
 
-    console.log('body', event.body)
-
     let body = {} as {
       token: string
       auth0Id: string
     }
 
     try {
-      console.log("Trying to decode the event's body as base64")
+      logger.info("Trying to decode the event's body as base64")
       const decoded = Buffer.from(event.body, 'base64').toString()
       body = JSON.parse(decoded || '{}')
     } catch (error) {
-      console.log(
+      logger.info(
         'Error decoding the event body as base64, parsing it as JSON',
         error
       )
       body = JSON.parse(event.body || '{}')
     }
-
-    console.log(`body ${JSON.stringify(body)}`)
-    console.log('process.env.AUTH0_DOMAIN', process.env.AUTH0_DOMAIN)
-    console.log(
-      'process.env.AUTH0_MANAGEMENT_CLIENT_ID',
-      process.env.AUTH0_MANAGEMENT_CLIENT_ID
-    )
-    console.log(
-      'process.env.AUTH0_MANAGEMENT_CLIENT_SECRET',
-      process.env.AUTH0_MANAGEMENT_CLIENT_SECRET
-    )
-    console.log(
-      'process.env.AUTH0_MANAGEMENT_AUDIENCE',
-      process.env.AUTH0_MANAGEMENT_AUDIENCE
-    )
 
     if (body.token !== process.env.AUTH0_WEBHOOK_TOKEN) {
       return {
@@ -87,7 +70,7 @@ export const handler = async (event: APIGatewayEvent, _context: Context) => {
     })
 
     if (newUser) {
-      console.log('Found user in db', { user: newUser })
+      logger.info(`Found user in db ${JSON.stringify({ user: newUser })}`)
       return {
         statusCode: 200,
         headers: {
@@ -101,7 +84,7 @@ export const handler = async (event: APIGatewayEvent, _context: Context) => {
 
     try {
       auth0User = (await management.users.get({ id: body?.auth0Id || '' })).data
-      console.log('Found user in auth0', { user: auth0User })
+      logger.info(`Found user in auth0 ${JSON.stringify({ user: auth0User })}`)
     } catch (error) {
       logger.error('Error fetching user from auth0', { error })
       return {
@@ -128,7 +111,7 @@ export const handler = async (event: APIGatewayEvent, _context: Context) => {
       throw error
     }
 
-    console.log('Created new user', { user: newUser })
+    logger.info(`Created new user ${JSON.stringify({ user: newUser })}`)
 
     return {
       statusCode: 200,
@@ -140,7 +123,7 @@ export const handler = async (event: APIGatewayEvent, _context: Context) => {
       }),
     }
   } catch (error) {
-    console.log('There was an error running the function', error)
+    logger.error('There was an error running the function', { error })
 
     return {
       statusCode: 500,
