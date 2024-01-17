@@ -22,7 +22,7 @@ import { db } from '../lib/db'
  * function, and execution environment.
  */
 export const handler = async (event: APIGatewayEvent, _context: Context) => {
-  logger.info('Processing ', event.httpMethod)
+  console.log('Processing ', event.httpMethod)
 
   try {
     if (event.httpMethod !== 'POST') {
@@ -31,7 +31,7 @@ export const handler = async (event: APIGatewayEvent, _context: Context) => {
       }
     }
 
-    logger.info('body', event.body)
+    console.log('body', event.body)
 
     let body = {} as {
       token: string
@@ -39,18 +39,18 @@ export const handler = async (event: APIGatewayEvent, _context: Context) => {
     }
 
     try {
-      logger.info("Trying to decode the event's body as base64")
+      console.log("Trying to decode the event's body as base64")
       const decoded = Buffer.from(event.body, 'base64').toString()
       body = JSON.parse(decoded || '{}')
     } catch (error) {
-      logger.info(
+      console.log(
         'Error decoding the event body as base64, parsing it as JSON',
         error
       )
       body = JSON.parse(event.body || '{}')
     }
 
-    logger.info(`body ${body}`)
+    console.log(`body ${body}`)
 
     if (body.token !== process.env.AUTH0_WEBHOOK_TOKEN) {
       return {
@@ -74,7 +74,7 @@ export const handler = async (event: APIGatewayEvent, _context: Context) => {
     })
 
     if (newUser) {
-      logger.info('Found user in db', { user: newUser })
+      console.log('Found user in db', { user: newUser })
       return {
         statusCode: 200,
         headers: {
@@ -88,10 +88,9 @@ export const handler = async (event: APIGatewayEvent, _context: Context) => {
 
     try {
       auth0User = (await management.users.get({ id: body?.auth0Id || '' })).data
-      logger.info('Found user in auth0', { user: auth0User })
+      console.log('Found user in auth0', { user: auth0User })
     } catch (error) {
       logger.error('Error fetching user from auth0', { error })
-      console.log(error)
       return {
         statusCode: 404,
         body: JSON.stringify({
@@ -116,7 +115,7 @@ export const handler = async (event: APIGatewayEvent, _context: Context) => {
       throw error
     }
 
-    logger.info('Created new user', { user: newUser })
+    console.log('Created new user', { user: newUser })
 
     return {
       statusCode: 200,
@@ -128,7 +127,7 @@ export const handler = async (event: APIGatewayEvent, _context: Context) => {
       }),
     }
   } catch (error) {
-    logger.info('There was an error running the function', error)
+    console.log('There was an error running the function', error)
 
     return {
       statusCode: 500,
