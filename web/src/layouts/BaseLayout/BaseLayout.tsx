@@ -10,7 +10,7 @@ const BaseLayout = ({ children }: BaseLayoutProps) => {
   const { isAuthenticated, logIn, logOut, loading } = useAuth()
 
   if (loading) {
-    return <div>Loading...</div>
+    return null
   }
 
   return (
