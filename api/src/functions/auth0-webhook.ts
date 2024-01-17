@@ -22,95 +22,117 @@ import { db } from '../lib/db'
  * function, and execution environment.
  */
 export const handler = async (event: APIGatewayEvent, _context: Context) => {
-  if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 404,
+  console.log('event.httpMethod', event.httpMethod)
+  try {
+    if (event.httpMethod !== 'POST') {
+      return {
+        statusCode: 404,
+      }
     }
-  }
 
-  const body = JSON.parse(event.body || '{}') as {
-    token: string
-    auth0Id: string
-  }
+    console.log('body', event.body)
 
-  logger.info('test')
-
-  if (body.token !== process.env.AUTH0_WEBHOOK_TOKEN) {
-    return {
-      statusCode: 401,
+    const body = JSON.parse(event.body || '{}') as {
+      token: string
+      auth0Id: string
     }
-  }
 
-  logger.info('management', process.env.AUTH0_DOMAIN)
+    console.log(
+      'process.env.AUTH0_WEBHOOK_TOKEN',
+      process.env.AUTH0_WEBHOOK_TOKEN
+    )
 
-  const management = new ManagementClient({
-    domain: process.env.AUTH0_DOMAIN || '',
-    clientId: process.env.AUTH0_MANAGEMENT_CLIENT_ID || '',
-    clientSecret: process.env.AUTH0_MANAGEMENT_CLIENT_SECRET || '',
-    audience: process.env.AUTH0_MANAGEMENT_AUDIENCE || '',
-  })
+    logger.info('test')
 
-  logger.info('auth0User', process.env.AUTH0_DOMAIN)
+    if (body.token !== process.env.AUTH0_WEBHOOK_TOKEN) {
+      return {
+        statusCode: 401,
+      }
+    }
 
-  let auth0User: GetUsers200ResponseOneOfInner
+    logger.info('management', process.env.AUTH0_DOMAIN)
 
-  let newUser = await db.user.findFirst({
-    where: {
-      auth0Id: body?.auth0Id || '',
-    },
-  })
+    const management = new ManagementClient({
+      domain: process.env.AUTH0_DOMAIN || '',
+      clientId: process.env.AUTH0_MANAGEMENT_CLIENT_ID || '',
+      clientSecret: process.env.AUTH0_MANAGEMENT_CLIENT_SECRET || '',
+      audience: process.env.AUTH0_MANAGEMENT_AUDIENCE || '',
+    })
 
-  if (newUser) {
-    logger.info('Found user in db', { user: newUser })
+    logger.info('auth0User', process.env.AUTH0_DOMAIN)
+
+    let auth0User: GetUsers200ResponseOneOfInner
+
+    let newUser = await db.user.findFirst({
+      where: {
+        auth0Id: body?.auth0Id || '',
+      },
+    })
+
+    if (newUser) {
+      logger.info('Found user in db', { user: newUser })
+      return {
+        statusCode: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          data: newUser,
+        }),
+      }
+    }
+
+    try {
+      auth0User = (await management.users.get({ id: body?.auth0Id || '' })).data
+      logger.info('Found user in auth0', { user: auth0User })
+    } catch (error) {
+      logger.error('Error fetching user from auth0', { error })
+      return {
+        statusCode: 404,
+        body: JSON.stringify({
+          error: error.message,
+        }),
+      }
+    }
+
+    try {
+      newUser = await db.user.create({
+        data: {
+          email: auth0User.email,
+          name: auth0User.name,
+          photoUrl: auth0User.picture,
+          username: auth0User.nickname,
+          auth0Id: auth0User.user_id,
+          emailVerified: true,
+        },
+      })
+    } catch (error) {
+      logger.error('Error creating new user', { error })
+      throw error
+    }
+
+    logger.info('Created new user', { user: newUser })
+
     return {
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        data: newUser,
+        ...newUser,
       }),
     }
-  }
-
-  try {
-    auth0User = (await management.users.get({ id: body?.auth0Id || '' })).data
-    logger.info('Found user in auth0', { user: auth0User })
   } catch (error) {
-    logger.error('Error fetching user from auth0', { error })
+    console.log('There was an error running the function', error)
+
     return {
-      statusCode: 404,
+      statusCode: 500,
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({
-        error: error.message,
+        message: 'There was an error running the function',
       }),
     }
-  }
-
-  try {
-    newUser = await db.user.create({
-      data: {
-        email: auth0User.email,
-        name: auth0User.name,
-        photoUrl: auth0User.picture,
-        username: auth0User.nickname,
-        auth0Id: auth0User.user_id,
-        emailVerified: true,
-      },
-    })
-  } catch (error) {
-    logger.error('Error creating new user', { error })
-    throw error
-  }
-
-  logger.info('Created new user', { user: newUser })
-
-  return {
-    statusCode: 200,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      ...newUser,
-    }),
   }
 }
