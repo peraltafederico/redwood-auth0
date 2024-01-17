@@ -22,7 +22,8 @@ import { db } from '../lib/db'
  * function, and execution environment.
  */
 export const handler = async (event: APIGatewayEvent, _context: Context) => {
-  console.log('event.httpMethod', event.httpMethod)
+  logger.info('Processing ', event.httpMethod)
+
   try {
     if (event.httpMethod !== 'POST') {
       return {
@@ -30,7 +31,7 @@ export const handler = async (event: APIGatewayEvent, _context: Context) => {
       }
     }
 
-    console.log('body', event.body)
+    logger.info('body', event.body)
 
     let body = {} as {
       token: string
@@ -38,16 +39,18 @@ export const handler = async (event: APIGatewayEvent, _context: Context) => {
     }
 
     try {
-      console.log("Trying to decode the event's body as base64")
+      logger.info("Trying to decode the event's body as base64")
       const decoded = Buffer.from(event.body, 'base64').toString()
       body = JSON.parse(decoded || '{}')
     } catch (error) {
-      console.log(
+      logger.info(
         'Error decoding the event body as base64, parsing it as JSON',
         error
       )
       body = JSON.parse(event.body || '{}')
     }
+
+    logger.info(`body ${body}`)
 
     if (body.token !== process.env.AUTH0_WEBHOOK_TOKEN) {
       return {
@@ -88,6 +91,7 @@ export const handler = async (event: APIGatewayEvent, _context: Context) => {
       logger.info('Found user in auth0', { user: auth0User })
     } catch (error) {
       logger.error('Error fetching user from auth0', { error })
+      console.log(error)
       return {
         statusCode: 404,
         body: JSON.stringify({
@@ -124,7 +128,7 @@ export const handler = async (event: APIGatewayEvent, _context: Context) => {
       }),
     }
   } catch (error) {
-    console.log('There was an error running the function', error)
+    logger.info('There was an error running the function', error)
 
     return {
       statusCode: 500,
