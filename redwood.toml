@@ -18,6 +18,7 @@
 [api]
   port = 8911
   includeEnvironmentVariables = [
+    "AUTH0_WEBHOOK_TOKEN",
     "AUTH0_AUDIENCE",
     "AUTH0_DOMAIN",
     "AUTH0_MANAGEMENT_CLIENT_ID",

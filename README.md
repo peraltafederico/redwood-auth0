@@ -67,22 +67,4 @@ Finally, install `axios`as dependency of the action and deploy.
 
 Once you created the action, come back to Login and make sure the action is dropped between Start and Complete.
 
-After this, go to your .env file and add the following:
-
-AUTH0_DOMAIN=You can find this under Applications > Your SPA > Settings > Domain
-
-AUTH0_CLIENT_ID=You can find this under Applications > Your SPA > Settings > Client ID
-
-AUTH0_REDIRECT_URI="http://localhost:8910"
-
-AUTH0_AUDIENCE=You can find this under APIs > Your API > Settings > Identifier
-
-DATABASE_URL=The url of your database
-
-DATABASE_URL_NON_POOLING=The url of your database
-
-AUTH0_MANAGEMENT_CLIENT_ID=You can find this under Applications > Auth0 Account Management API Management Client > Settings > Client ID
-
-AUTH0_MANAGEMENT_CLIENT_SECRET=You can find this under Applications > Auth0 Account Management API Management Client > Settings > Client Secret
-
-AUTH0_MANAGEMENT_AUDIENCE=You can find this under APIs > Auth Management API > Settings > Identifier
+After this, go to your .env file, copy and paste the values from .env.example and replace with your own values. You're ready now to start the project in dev mode!

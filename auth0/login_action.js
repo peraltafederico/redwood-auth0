@@ -4,6 +4,7 @@
 
 const SCOPE = ''
 const USER_SERVICE_BASE_URL = ''
+const AUTH0_WEBHOOK_TOKEN = 'token' // This token has to be the same in the webhook
 
 /**
  * Handler that will be called during the execution of a PostLogin flow.
@@ -23,10 +24,10 @@ exports.onExecutePostLogin = async (event, api) => {
   if (isNewUser) {
     try {
       const { data: user } = await axios.post(
-        `${USER_SERVICE_BASE_URL}/webhook/auth0/users`,
+        `${USER_SERVICE_BASE_URL}/api/auth0-webhook`,
         {
           auth0Id: event.user.user_id,
-          token: 'token',
+          token: AUTH0_WEBHOOK_TOKEN,
         }
       )
 
