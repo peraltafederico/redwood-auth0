@@ -32,15 +32,22 @@ export const handler = async (event: APIGatewayEvent, _context: Context) => {
 
     console.log('body', event.body)
 
-    const body = JSON.parse(event.body || '{}') as {
+    let body = {} as {
       token: string
       auth0Id: string
     }
 
-    console.log('process.env.AUTH0_WEBHOOK_TOKEN')
-    console.log(process.env.AUTH0_WEBHOOK_TOKEN)
-
-    logger.info('test')
+    try {
+      console.log("Trying to decode the event's body as base64")
+      const decoded = Buffer.from(event.body, 'base64').toString()
+      body = JSON.parse(decoded || '{}')
+    } catch (error) {
+      console.log(
+        'Error decoding the event body as base64, parsing it as JSON',
+        error
+      )
+      body = JSON.parse(event.body || '{}')
+    }
 
     if (body.token !== process.env.AUTH0_WEBHOOK_TOKEN) {
       return {
@@ -48,16 +55,12 @@ export const handler = async (event: APIGatewayEvent, _context: Context) => {
       }
     }
 
-    logger.info('management', process.env.AUTH0_DOMAIN)
-
     const management = new ManagementClient({
       domain: process.env.AUTH0_DOMAIN || '',
       clientId: process.env.AUTH0_MANAGEMENT_CLIENT_ID || '',
       clientSecret: process.env.AUTH0_MANAGEMENT_CLIENT_SECRET || '',
       audience: process.env.AUTH0_MANAGEMENT_AUDIENCE || '',
     })
-
-    logger.info('auth0User', process.env.AUTH0_DOMAIN)
 
     let auth0User: GetUsers200ResponseOneOfInner
 
