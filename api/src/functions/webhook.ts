@@ -70,6 +70,7 @@ export const handler = async (event: APIGatewayEvent, _context: Context) => {
     auth0User = (await management.users.get({ id: body?.auth0Id || '' })).data
     logger.info('Found user in auth0', { user: auth0User })
   } catch (error) {
+    logger.error('Error fetching user from auth0', { error })
     return {
       statusCode: 404,
       body: JSON.stringify({
@@ -78,16 +79,21 @@ export const handler = async (event: APIGatewayEvent, _context: Context) => {
     }
   }
 
-  newUser = await db.user.create({
-    data: {
-      email: auth0User.email,
-      name: auth0User.name,
-      photoUrl: auth0User.picture,
-      username: auth0User.nickname,
-      auth0Id: auth0User.user_id,
-      emailVerified: true,
-    },
-  })
+  try {
+    newUser = await db.user.create({
+      data: {
+        email: auth0User.email,
+        name: auth0User.name,
+        photoUrl: auth0User.picture,
+        username: auth0User.nickname,
+        auth0Id: auth0User.user_id,
+        emailVerified: true,
+      },
+    })
+  } catch (error) {
+    logger.error('Error creating new user', { error })
+    throw error
+  }
 
   logger.info('Created new user', { user: newUser })
 
