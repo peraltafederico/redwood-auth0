@@ -137,9 +137,7 @@ const Home = ({ user }: Props) => {
               {
                 ...raw,
                 token: token
-                  ? JSON.parse(
-                      Buffer.from(token.split('.')[1], 'base64').toString()
-                    )
+                  ? JSON.parse(atob(token.split('.')[1]))
                   : undefined,
               },
               null,
