@@ -44,6 +44,7 @@ const BaseLayout = ({ children }: BaseLayoutProps) => {
                       if (isAuthenticated) {
                         logOut({
                           logoutParams: {
+                            federated: true,
                             returnTo: `${window.location.origin}`,
                           },
                         })
