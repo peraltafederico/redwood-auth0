@@ -6,6 +6,8 @@ import { toast } from '@redwoodjs/web/toast'
 
 import { checkboxInputTag, timeTag } from 'src/lib/formatters'
 
+import useIsPostOwner from '../../../hooks/useIsPostOwner'
+
 const DELETE_POST_MUTATION = gql`
   mutation DeletePostMutation($id: String!) {
     deletePost(id: $id) {
@@ -34,6 +36,7 @@ const Post = ({ post }: Props) => {
       deletePost({ variables: { id } })
     }
   }
+  const { isFullAccess } = useIsPostOwner()
 
   return (
     <>
@@ -77,19 +80,23 @@ const Post = ({ post }: Props) => {
         </table>
       </div>
       <nav className="rw-button-group">
-        <Link
-          to={routes.editPost({ id: post.id })}
-          className="rw-button rw-button-blue"
-        >
-          Edit
-        </Link>
-        <button
-          type="button"
-          className="rw-button rw-button-red"
-          onClick={() => onDeleteClick(post.id)}
-        >
-          Delete
-        </button>
+        {isFullAccess(post) && (
+          <Link
+            to={routes.editPost({ id: post.id })}
+            className="rw-button rw-button-blue"
+          >
+            Edit
+          </Link>
+        )}
+        {isFullAccess(post) && (
+          <button
+            type="button"
+            className="rw-button rw-button-red"
+            onClick={() => onDeleteClick(post.id)}
+          >
+            Delete
+          </button>
+        )}
       </nav>
     </>
   )

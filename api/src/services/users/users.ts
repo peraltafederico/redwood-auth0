@@ -1,9 +1,16 @@
-import { ManagementClient, PostIdentitiesRequestProviderEnum } from 'auth0'
+import {
+  DeleteUserIdentityByUserIdProviderEnum,
+  ManagementClient,
+  PostIdentitiesRequestProviderEnum,
+} from 'auth0'
 import type {
   QueryResolvers,
   MutationResolvers,
   UserRelationResolvers,
+  Auth0User,
 } from 'types/graphql'
+
+import { ValidationError } from '@redwoodjs/graphql-server'
 
 import { db } from 'src/lib/db'
 
@@ -44,15 +51,31 @@ export const deleteUser: MutationResolvers['deleteUser'] = ({ id }) => {
   })
 }
 
+export const unlinkUser: MutationResolvers['unlinkUser'] = async ({
+  input,
+}) => {
+  await managementClient.users.unlink({
+    id: context.currentUser.sub,
+    user_id: input.userId,
+    provider: input.provider as DeleteUserIdentityByUserIdProviderEnum,
+  })
+
+  return db.user.findUnique({
+    where: { id: context.currentUser.userId },
+  })
+}
+
 export const linkUser: MutationResolvers['linkUser'] = async ({ input }) => {
   const decodedLinkwith = await verify(input.linkWith)
   const linkWithUserId = decodedLinkwith[
     process.env.AUTH0_AUDIENCE + '/app_metadata'
   ]?.userId as string
 
-  await db.$transaction(async (_db) => {
-    console.log('linkWithUserId', decodedLinkwith, linkWithUserId)
+  if (linkWithUserId === context.currentUser.userId) {
+    throw new ValidationError('Cannot link with yourself')
+  }
 
+  await db.$transaction(async (_db) => {
     await _db.post.updateMany({
       data: {
         authorId: context.currentUser.userId,
@@ -92,7 +115,6 @@ export const User: UserRelationResolvers = {
   },
   auth0User: async (_obj, { root }) => {
     const { data } = await managementClient.users.get({ id: root.auth0Id })
-    console.log('data', JSON.stringify(data))
-    return data
+    return data as Auth0User
   },
 }

@@ -12,7 +12,10 @@ export const schema = gql`
     posts: [Post]!
     auth0User: Auth0User
   }
-
+  type ProfileData {
+    email: String
+    email_verified: Boolean
+  }
   type AppMetadata {
     userId: String
   }
@@ -24,6 +27,7 @@ export const schema = gql`
     user_id: String
     connection: String
     isSocial: Boolean
+    profileData: ProfileData
   }
 
   type Auth0User {
@@ -74,8 +78,14 @@ export const schema = gql`
     linkWith: String!
   }
 
+  input UnlinkUserInput {
+    userId: String!
+    provider: String!
+  }
+
   type Mutation {
     linkUser(input: LinkUserInput!): User! @requireAuth
+    unlinkUser(input: UnlinkUserInput!): User! @requireAuth
     createUser(input: CreateUserInput!): User! @requireAuth
     updateUser(id: String!, input: UpdateUserInput!): User! @requireAuth
     deleteUser(id: String!): User! @requireAuth

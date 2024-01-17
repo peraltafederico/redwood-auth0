@@ -26,7 +26,6 @@ const NewPost = () => {
   })
 
   const onSave = (input: CreatePostInput) => {
-    console.log('input', input)
     createPost({ variables: { input } })
   }
 

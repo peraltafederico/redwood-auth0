@@ -21,7 +21,7 @@ interface PostFormProps {
 }
 
 const PostForm = (props: PostFormProps) => {
-  const onSubmit = (data: FormPost) => {
+  const onSubmit = async (data: FormPost) => {
     props.onSave(data, props?.post?.id)
   }
 

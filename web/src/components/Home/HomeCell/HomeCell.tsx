@@ -7,16 +7,31 @@ import Home from '../Home/Home'
 
 export const QUERY = gql`
   query UserQuery($id: String!) {
-    user: user(id: $id) {
+    user(id: $id) {
       id
+      photoUrl
+      auth0Id
+      name
+      email
       auth0User {
         user_id
+        name
+        nickname
+        email
+        email_verified
+        logins_count
+        last_ip
+        last_login
         identities {
           access_token
           connection
           user_id
           provider
           isSocial
+          profileData {
+            email
+            email_verified
+          }
         }
       }
     }
@@ -33,7 +48,7 @@ export const Failure = ({ error }: CellFailureProps<UserQueryVariables>) => (
 
 export const Success = ({
   user,
-}: CellSuccessProps<UserQuery, UserQueryVariables>) => {
+}: { token: string } & CellSuccessProps<UserQuery, UserQueryVariables>) => {
   return <Home user={user} />
 }
 

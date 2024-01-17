@@ -22,7 +22,6 @@ import { db } from '../lib/db'
  * function, and execution environment.
  */
 export const handler = async (event: APIGatewayEvent, _context: Context) => {
-  console.log('event.path', event.path)
   if (event.httpMethod !== 'POST' || event.path !== '/webhook/auth0/users') {
     return {
       statusCode: 404,
