@@ -50,7 +50,20 @@ export const handler = async (event: APIGatewayEvent, _context: Context) => {
       body = JSON.parse(event.body || '{}')
     }
 
-    console.log(`body ${body}`)
+    console.log(`body ${JSON.stringify(body)}`)
+    console.log('process.env.AUTH0_DOMAIN', process.env.AUTH0_DOMAIN)
+    console.log(
+      'process.env.AUTH0_MANAGEMENT_CLIENT_ID',
+      process.env.AUTH0_MANAGEMENT_CLIENT_ID
+    )
+    console.log(
+      'process.env.AUTH0_MANAGEMENT_CLIENT_SECRET',
+      process.env.AUTH0_MANAGEMENT_CLIENT_SECRET
+    )
+    console.log(
+      'process.env.AUTH0_MANAGEMENT_AUDIENCE',
+      process.env.AUTH0_MANAGEMENT_AUDIENCE
+    )
 
     if (body.token !== process.env.AUTH0_WEBHOOK_TOKEN) {
       return {
