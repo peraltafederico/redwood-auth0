@@ -7,7 +7,11 @@ type BaseLayoutProps = {
 }
 
 const BaseLayout = ({ children }: BaseLayoutProps) => {
-  const { isAuthenticated, logIn, logOut } = useAuth()
+  const { isAuthenticated, logIn, logOut, loading } = useAuth()
+
+  if (loading) {
+    return <div>Loading...</div>
+  }
 
   return (
     <div className="pb-10 sm:container sm:mx-auto">
